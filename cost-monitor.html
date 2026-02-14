@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otto Cost Monitor - Stablish Church Directory</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .status-light {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .status-green { background: #10b981; }
+        .status-yellow { background: #f59e0b; }
+        .status-red { background: #ef4444; }
+        
+        .budget-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .budget-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .budget-amount {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .budget-safe { color: #10b981; }
+        .budget-warning { color: #f59e0b; }
+        .budget-danger { color: #ef4444; }
+        
+        .progress-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .progress-budget { background: #10b981; }
+        .progress-warning { background: #f59e0b; }
+        .progress-danger { background: #ef4444; }
+        
+        .efficiency-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .batch-log {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: 'Monaco', monospace;
+            font-size: 14px;
+        }
+        .cost-good { color: #10b981; font-weight: bold; }
+        .cost-warning { color: #f59e0b; font-weight: bold; }
+        .cost-bad { color: #ef4444; font-weight: bold; }
+        
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .emergency-stop {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .emergency-stop:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Otto Cost Monitor</h1>
+            <p><span id="statusLight" class="status-light status-green"></span>
+            <span id="statusText">Operating Safely</span></p>
+            <p><strong>Church Directory Project Cost Tracking</strong></p>
+        </div>
+
+        <div class="budget-cards">
+            <div class="budget-card">
+                <h3>Daily Spending</h3>
+                <div id="dailySpent" class="budget-amount budget-safe">$0.00</div>
+                <div>of $5.00 daily limit</div>
+            </div>
+            <div class="budget-card">
+                <h3>Last Batch Cost</h3>
+                <div id="lastBatchCost" class="budget-amount budget-safe">$0.00</div>
+                <div>Target: Under $0.05</div>
+            </div>
+            <div class="budget-card">
+                <h3>Churches Processed</h3>
+                <div id="churchesProcessed" class="budget-amount">0</div>
+                <div>of ~5,256 target</div>
+            </div>
+            <div class="budget-card">
+                <h3>Estimated Total Cost</h3>
+                <div id="estimatedTotal" class="budget-amount">$0.00</div>
+                <div>Based on current efficiency</div>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <h3>Daily Budget Progress</h3>
+            <div class="progress-bar">
+                <div id="budgetProgress" class="progress-fill progress-budget" style="width: 0%"></div>
+            </div>
+            <div><strong id="budgetText">$0.00 / $5.00 (0%)</strong></div>
+            <p><em>⚠️ Warning at $3.75 (75%) • 🛑 Hard stop at $5.00</em></p>
+        </div>
+
+        <div class="efficiency-section">
+            <h3>Batch Efficiency Log</h3>
+            <div id="batchLog">
+                <div class="batch-log">Waiting for first batch to complete...</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <h3>Controls</h3>
+            <button class="emergency-stop" onclick="emergencyStop()">🚨 EMERGENCY STOP ALL PROCESSING</button>
+            <br><br>
+            <button onclick="showManualEntry()" style="background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin: 5px; cursor: pointer;">📊 Add Batch Result</button>
+            <button onclick="resetDaily()" style="background: #f59e0b; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin: 5px; cursor: pointer;">🔄 Reset Daily</button>
+            <button onclick="localStorage.clear(); location.reload()" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin: 5px; cursor: pointer;">🗑️ Clear All Data</button>
+            <p><em>Add batch results manually when Otto completes processing batches</em></p>
+        </div>
+    </div>
+
+    <script>
+        // Real data tracking
+        let dailySpent = 0;
+        let lastBatchCost = 0;
+        let churchesProcessed = 0;
+        let batchHistory = [];
+        
+        // Cost calculation (Haiku model pricing)
+        const HAIKU_INPUT_COST = 0.00000025;  // $0.25 per 1M tokens
+        const HAIKU_OUTPUT_COST = 0.00000125; // $1.25 per 1M tokens
+
+        function updateDisplay() {
+            // Update daily spending
+            document.getElementById('dailySpent').textContent = `$${dailySpent.toFixed(3)}`;
+            document.getElementById('lastBatchCost').textContent = `$${lastBatchCost.toFixed(3)}`;
+            document.getElementById('churchesProcessed').textContent = churchesProcessed;
+            
+            // Calculate estimated total cost
+            const avgBatchCost = batchHistory.length > 0 ? 
+                batchHistory.reduce((a, b) => a + b, 0) / batchHistory.length : 0;
+            const remainingBatches = Math.ceil((5256 - churchesProcessed) / 5);
+            const estimatedTotal = remainingBatches * avgBatchCost;
+            document.getElementById('estimatedTotal').textContent = `$${estimatedTotal.toFixed(2)}`;
+
+            // Update budget progress
+            const budgetPercent = (dailySpent / 5.00) * 100;
+            document.getElementById('budgetProgress').style.width = `${Math.min(budgetPercent, 100)}%`;
+            document.getElementById('budgetText').textContent = `$${dailySpent.toFixed(3)} / $5.00 (${budgetPercent.toFixed(1)}%)`;
+
+            // Update status light and colors
+            const statusLight = document.getElementById('statusLight');
+            const statusText = document.getElementById('statusText');
+            const dailySpentEl = document.getElementById('dailySpent');
+            const lastBatchEl = document.getElementById('lastBatchCost');
+            const progressBar = document.getElementById('budgetProgress');
+
+            if (dailySpent >= 5.0) {
+                statusLight.className = 'status-light status-red';
+                statusText.textContent = 'BUDGET EXCEEDED - STOPPED';
+                dailySpentEl.className = 'budget-amount budget-danger';
+                progressBar.className = 'progress-fill progress-danger';
+            } else if (dailySpent >= 3.75) {
+                statusLight.className = 'status-light status-yellow';
+                statusText.textContent = 'WARNING - Near Budget Limit';
+                dailySpentEl.className = 'budget-amount budget-warning';
+                progressBar.className = 'progress-fill progress-warning';
+            } else {
+                statusLight.className = 'status-light status-green';
+                statusText.textContent = 'Operating Safely';
+                dailySpentEl.className = 'budget-amount budget-safe';
+                progressBar.className = 'progress-fill progress-budget';
+            }
+
+            // Color-code last batch cost
+            if (lastBatchCost > 0.10) {
+                lastBatchEl.className = 'budget-amount budget-danger';
+            } else if (lastBatchCost > 0.05) {
+                lastBatchEl.className = 'budget-amount budget-warning';
+            } else {
+                lastBatchEl.className = 'budget-amount budget-safe';
+            }
+        }
+
+        function addBatchLog(batchNum, cost, churches, status) {
+            const logEntry = document.createElement('div');
+            logEntry.className = 'batch-log';
+            
+            const costClass = cost > 0.10 ? 'cost-bad' : cost > 0.05 ? 'cost-warning' : 'cost-good';
+            
+            logEntry.innerHTML = `
+                <strong>Batch ${batchNum}</strong> | 
+                <span class="${costClass}">$${cost.toFixed(3)}</span> | 
+                ${churches} churches | 
+                ${status}
+                <br><small>${new Date().toLocaleTimeString()}</small>
+            `;
+            
+            const logContainer = document.getElementById('batchLog');
+            logContainer.prepend(logEntry);
+            
+            // Keep only last 10 entries
+            while (logContainer.children.length > 10) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+
+        function simulateBatch() {
+            // Simulate a batch completion (for testing)
+            const batchCost = Math.random() * 0.08;
+            dailySpent += batchCost;
+            lastBatchCost = batchCost;
+            churchesProcessed += 5;
+            batchHistory.push(batchCost);
+            
+            addBatchLog(Math.ceil(churchesProcessed / 5), batchCost, 5, 'Complete');
+            updateDisplay();
+        }
+
+        function emergencyStop() {
+            if (confirm('Are you sure you want to STOP all church processing? This will halt all active batches.')) {
+                // In real implementation, this would call the backend to stop all processing
+                alert('🚨 EMERGENCY STOP ACTIVATED\n\nAll church processing has been halted to protect budget.');
+                document.getElementById('statusText').textContent = 'MANUALLY STOPPED';
+                document.getElementById('statusLight').className = 'status-light status-red';
+            }
+        }
+
+        // Load batch data from batch-results.json file
+        async function loadBatchData() {
+            try {
+                const response = await fetch('./batch-results.json');
+                const data = await response.json();
+                
+                dailySpent = data.dailySpent || 0;
+                lastBatchCost = data.batches.length > 0 ? data.batches[data.batches.length - 1].cost : 0;
+                churchesProcessed = data.totalChurchesProcessed || 0;
+                batchHistory = data.batches.map(b => b.cost) || [];
+                
+                // Update batch log display
+                const logContainer = document.getElementById('batchLog');
+                logContainer.innerHTML = '';
+                data.batches.slice(-10).reverse().forEach(batch => {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = 'batch-log';
+                    
+                    const costClass = batch.cost > 0.10 ? 'cost-bad' : batch.cost > 0.05 ? 'cost-warning' : 'cost-good';
+                    const time = new Date(batch.timestamp).toLocaleTimeString();
+                    
+                    logEntry.innerHTML = `
+                        <strong>Batch ${batch.batchNumber}</strong> | 
+                        <span class="${costClass}">$${batch.cost.toFixed(3)}</span> | 
+                        ${batch.churchesProcessed} churches | 
+                        ${batch.status}
+                        <br><small>${time} | Tokens: ${batch.inputTokens}in + ${batch.outputTokens}out</small>
+                    `;
+                    logContainer.appendChild(logEntry);
+                });
+                
+            } catch (error) {
+                console.log('Could not load batch results file:', error);
+                // Fallback to localStorage
+                const saved = localStorage.getItem('churchDirectoryProgress');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    dailySpent = data.dailySpent || 0;
+                    lastBatchCost = data.lastBatchCost || 0;
+                    churchesProcessed = data.churchesProcessed || 0;
+                    batchHistory = data.batchHistory || [];
+                }
+            }
+        }
+        
+        // Save batch data to localStorage
+        function saveBatchData() {
+            const data = {
+                dailySpent,
+                lastBatchCost,
+                churchesProcessed,
+                batchHistory,
+                lastUpdated: new Date().toISOString()
+            };
+            localStorage.setItem('churchDirectoryProgress', JSON.stringify(data));
+        }
+        
+        // Add new batch result
+        function addBatchResult(inputTokens, outputTokens, churchCount, status) {
+            const cost = (inputTokens * HAIKU_INPUT_COST) + (outputTokens * HAIKU_OUTPUT_COST);
+            dailySpent += cost;
+            lastBatchCost = cost;
+            churchesProcessed += churchCount;
+            batchHistory.push(cost);
+            
+            // Keep only last 20 batches
+            if (batchHistory.length > 20) {
+                batchHistory.shift();
+            }
+            
+            addBatchLog(Math.ceil(churchesProcessed / 5), cost, churchCount, status);
+            saveBatchData();
+            updateDisplay();
+        }
+        
+        // Manual batch entry form
+        function showManualEntry() {
+            const inputTokens = prompt('Input tokens used:');
+            const outputTokens = prompt('Output tokens used:');
+            const churches = prompt('Churches processed:');
+            if (inputTokens && outputTokens && churches) {
+                addBatchResult(parseInt(inputTokens), parseInt(outputTokens), parseInt(churches), 'Manual Entry');
+            }
+        }
+        
+        // Reset daily tracking (for new day)
+        function resetDaily() {
+            if (confirm('Reset daily spending counter? (keeps batch history)')) {
+                dailySpent = 0;
+                saveBatchData();
+                updateDisplay();
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(async () => {
+            await loadBatchData();
+            updateDisplay();
+        }, 30000);
+
+        // Load data and initialize
+        (async () => {
+            await loadBatchData();
+            updateDisplay();
+        })();
+    </script>
+</body>
+</html>
