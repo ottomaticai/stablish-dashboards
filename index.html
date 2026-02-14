@@ -193,7 +193,8 @@
 
         async function fetchStats() {
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/churches?select=website_url,phone,publish_ready,state&_=${CACHE_BUSTER}`, {
+                // Fetch ALL data by setting a high limit
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/churches?select=website_url,phone,publish_ready,state&limit=10000&_=${CACHE_BUSTER}`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -239,7 +240,8 @@
 
         async function fetchChurches() {
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/churches?select=name,city,county,state,website_url,phone&order=name&limit=2000&_=${CACHE_BUSTER}`, {
+                // Show first 1500 churches (performance balance)
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/churches?select=name,city,county,state,website_url,phone&order=name&limit=1500&_=${CACHE_BUSTER}`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
