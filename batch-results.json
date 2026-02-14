@@ -1,0 +1,44 @@
+{
+  "lastUpdated": "2026-02-14T23:15:00Z",
+  "dailySpent": 0.019,
+  "batches": [
+    {
+      "batchNumber": 1,
+      "timestamp": "2026-02-14T22:46:00Z",
+      "inputTokens": 8000,
+      "outputTokens": 2400,
+      "churchesProcessed": 3,
+      "cost": 0.005,
+      "status": "Complete - Brave API",
+      "churches": ["Chinese Baptist Church of Central Orange County", "Chinese Bible Church of San Diego", "Chinese Christian Church of Thousand Oaks"]
+    },
+    {
+      "batchNumber": 2,
+      "timestamp": "2026-02-14T22:57:00Z",
+      "inputTokens": 14000,
+      "outputTokens": 8800,
+      "churchesProcessed": 15,
+      "cost": 0.014,
+      "status": "Complete - Large Batch",
+      "churches": ["Sa-Rang Community Church KDC", "Journey of Faith", "Christ Church by the Sea", "Christ the King Lutheran", "Living Way Church", "Valley Presbyterian", "Redlands Christian Center", "University Christian Church", "The Crossing Church", "Living Word Fellowship", "University City United Church", "Church of Our Savior", "Sepulveda Church of Christ", "Influence Church", "Victory Life Foursquare"]
+    },
+    {
+      "batchNumber": 3,
+      "timestamp": "2026-02-14T23:15:00Z",
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "churchesProcessed": 2202,
+      "cost": 0.000,
+      "status": "MASSIVE WIN - Texas Apollo Import",
+      "churches": ["CREATE CHURCH INC", "Austin Baptist Church", "Gateway Church", "First Baptist Church Brownwood", "...and 2,198 more Texas churches"]
+    }
+  ],
+  "totalChurchesProcessed": 2220,
+  "totalCost": 0.019,
+  "averageCostPerBatch": 0.0063,
+  "estimatedRemainingCost": 0.5,
+  "braveSearchesUsed": 18,
+  "braveSearchesRemaining": 982,
+  "texasChurchesImported": 2202,
+  "totalWithWebsites": 2220
+}
