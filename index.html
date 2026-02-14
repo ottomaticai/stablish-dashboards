@@ -132,7 +132,7 @@
     <div class="container">
         <div class="header">
             <h1>🏛️ Stablish Church Directory</h1>
-            <p>Southern California Church Database - Phase 2 Active</p>
+            <p>Church Database with Texas Apollo Data - Updated <span id="updateTime"></span></p>
         </div>
 
         <div class="stats" id="stats">
@@ -186,14 +186,19 @@
         const SUPABASE_URL = 'https://vfkbixgfrtdawhntwqtw.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZma2JpeGdmcnRkYXdobnR3cXR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwODE1MTQsImV4cCI6MjA4NjY1NzUxNH0.4-EBAR8pNM83Jz3nhzkBwaCJHXG39SQZ6XeFzOYnTp0';
         
+        // Cache buster
+        const CACHE_BUSTER = Date.now();
+        
         let allChurches = [];
 
         async function fetchStats() {
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/churches?select=website_url,phone,publish_ready,state`, {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/churches?select=website_url,phone,publish_ready,state&_=${CACHE_BUSTER}`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
                     }
                 });
                 const churches = await response.json();
@@ -234,10 +239,12 @@
 
         async function fetchChurches() {
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/churches?select=name,city,county,state,website_url,phone&order=name&limit=1000`, {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/churches?select=name,city,county,state,website_url,phone&order=name&limit=2000&_=${CACHE_BUSTER}`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
                     }
                 });
                 allChurches = await response.json();
@@ -287,6 +294,7 @@
         }, 30000);
 
         // Initial load
+        document.getElementById('updateTime').textContent = new Date().toLocaleTimeString();
         fetchStats();
         fetchChurches();
     </script>
